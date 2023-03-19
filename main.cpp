@@ -93,11 +93,15 @@ int main()
 				if (event.key.code == sf::Keyboard::Space && !bSpacePressed)
 				{
 					bSpacePressed = true;
-					Projectile* pro = new Projectile(shipSprite.getPosition(), shipSprite.getRotation());
+
+					sf::Vector2f shipTip = { shipSprite.getPosition().x, shipSprite.getPosition().y - shipSprite.getGlobalBounds().height / 2 + 5.0f };
+
+					Projectile* pro = new Projectile(RotateAroundPoint(shipTip, shipSprite.getPosition(), DegreeToRadians(shipSprite.getRotation())), shipSprite.getRotation());
 					pro->SetVelocity({ shipDirection.x * bulletSpeed, shipDirection.y * bulletSpeed });
 					Projectiles.push_back(pro);
 				}
 			}
+
 
 			if(event.type == sf::Event::KeyReleased)
 			{
@@ -147,9 +151,6 @@ int main()
 			momentum.y *= drag;
 		}
 
-		
-
-
 		if(Projectiles.size()!=0)
 		{
 			for(Projectile* pro : Projectiles)
@@ -164,8 +165,6 @@ int main()
 				i++;
 			}
 		}
-
-		std::cout << Projectiles.size()<<std::endl;
 
 		shipPosition.x += momentum.x*deltaTime.asSeconds();
 		shipPosition.y += momentum.y*deltaTime.asSeconds();

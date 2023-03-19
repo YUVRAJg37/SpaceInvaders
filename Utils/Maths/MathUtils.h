@@ -20,4 +20,11 @@ void Normalize(sf::Vector2f &vector)
 	vector.y /= magnitude;
 }
 
+sf::Vector2f RotateAroundPoint(sf::Vector2f point, sf::Vector2f origin, float angle)
+{
+	sf::Vector2f NewPointLocation;
+	NewPointLocation.x = (point.x - origin.x) * (float)cos(angle) - (point.y - origin.y) * (float)sin(angle) + origin.x;
+	NewPointLocation.y = (point.x - origin.x) * (float)sin(angle) + (point.y - origin.y) * (float)cos(angle) + origin.y;
+	return NewPointLocation;
+}
 
