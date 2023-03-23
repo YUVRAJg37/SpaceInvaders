@@ -14,6 +14,7 @@ constexpr int Width = 800;
 constexpr int Height = 800;
 
 void SpriteWrap(sf::Sprite* sprite);
+void DestroyObstacle(std::vector<Obstacle*>& Obstacles, sf::Sprite* obstacle,sf::Vector2f normal);
 
 template <typename t>
 float Rand(t min, t max);
@@ -42,7 +43,7 @@ int main()
 		ObstacleTransform transform;
 		transform.position = { (float)Rand<int>(0, Width), (float)Rand<int>(0, Height) };
 		float scale = Rand<float>(0.5, 0.2);
-		transform.scale = { 0.5, 0.5 };
+		transform.scale = { scale, scale };
 		transform.rotation = Rand<int>(0, 360);
 		Obstacle* obs = new Obstacle(transform);
 		obs->SetVelocity({ Rand<int>(-ObstacleMaxVelocity.x, ObstacleMaxVelocity.x), Rand<int>(-ObstacleMaxVelocity.y, ObstacleMaxVelocity.y) });
@@ -181,25 +182,30 @@ int main()
 		{
 			CollisionHandler collisionHandler;
 
-			for(Obstacle* obs : Obstacles)
+			for(Projectile* pro : Projectiles)
 			{
-				if (obs->GetCollision())
+				if (pro->GetCollision())
 				{
-					for (Projectile* pro : Projectiles)
+					for (Obstacle* obs : Obstacles)
 					{
-						if (pro->GetCollision())
+						if(obs->GetCollision())
 						{
 							if (collisionHandler.BoundingBoxDetection(obs->GetObstacle(), pro->GetProjectileSprite()))
 							{
 								std::cout << "Collision Detected " << std::endl;
-								/*pro->SetCollision(false);
+								pro->SetCollision(false);
 								pro->SetVisibility(false);
 								obs->SetVisibility(false);
-								obs->SetCollision(false);*/
-							}
-							else
-							{
-								//std::cout << "Collision Not Detected" << std::endl;
+								obs->SetCollision(false);
+
+								sf::Vector2f edge = { pro->GetProjectileSprite()->getPosition().x - obs->GetObstacle()->getPosition().x,
+									pro->GetProjectileSprite()->getPosition().y - obs->GetObstacle()->getPosition().y };
+								sf::Vector2f axis1 = { -edge.y, edge.x };
+								sf::Vector2f axis2 = { edge.y, -edge.x };
+
+								DestroyObstacle(Obstacles, obs->GetObstacle() ,axis1);
+								DestroyObstacle(Obstacles, obs->GetObstacle(),axis2);
+								break;
 							}
 						}
 					}
@@ -271,4 +277,22 @@ float Rand(t min, t max)
 {
 	float x = min + static_cast <t> (rand()) / (static_cast <t> (RAND_MAX / (max - min)));
 	return x;
+}
+
+void DestroyObstacle(std::vector<Obstacle*>& Obstacles, sf::Sprite* obstacle, sf::Vector2f normal)
+{
+	if (obstacle->getScale().x <= 0.15)
+		return;
+
+	ObstacleTransform transform;
+	transform.position = obstacle->getPosition();
+
+	float scale = Rand<float>(0.1, obstacle->getScale().x);
+	transform.scale = { scale, scale };
+
+	transform.rotation = Rand<int>(0, 360);
+
+	Obstacle* obs = new Obstacle(transform);
+	obs->SetVelocity({normal.x, normal.y});
+	Obstacles.push_back(obs);
 }

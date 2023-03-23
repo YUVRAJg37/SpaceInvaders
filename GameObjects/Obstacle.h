@@ -28,7 +28,7 @@ public:
 
 	sf::Sprite* GetObstacle() const { return m_ObstacleSpritePtr; }
 	void SetVelocity(sf::Vector2f vel) { m_Velocity = vel; }
-	void SetCollision(bool x) { m_CanCollide = true; }
+	void SetCollision(bool x) { m_CanCollide = x; }
 	bool GetCollision() const { return m_CanCollide; }
 	void SetVisibility(bool x) { m_Visible = x; }
 	bool GetVisibility() const { return m_Visible; }
