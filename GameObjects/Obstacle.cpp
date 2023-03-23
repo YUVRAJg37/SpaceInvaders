@@ -4,7 +4,7 @@
 
 Obstacle::Obstacle(ObstacleTransform obstacleTransform)
 {
-	if(!m_ObstacleTexture.loadFromFile("./Sprites/Obstacle.png"))
+	if (!m_ObstacleTexture.loadFromFile("./Sprites/Obstacle.png"))
 	{
 		std::cout << "Obstacle Texture load fail" << std::endl;
 		return;

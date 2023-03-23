@@ -4,7 +4,7 @@
 Projectile::Projectile(sf::Vector2f position, float rotation)
 {
 
-	if (!m_ProjectileTexture.loadFromFile("./Sprites/Projectile.png"))
+	if (!m_ProjectileTexture.loadFromFile("./Sprites/Projectile.png", sf::IntRect{0, 0, 5, 5}))
 	{
 		std::cout << "Obstacle Texture load fail" << std::endl;
 		return;
@@ -15,7 +15,6 @@ Projectile::Projectile(sf::Vector2f position, float rotation)
 	m_ProjectileSprite.setOrigin(m_ProjectileSprite.getLocalBounds().width / 2, m_ProjectileSprite.getLocalBounds().height / 2);
 	m_ProjectileSprite.setPosition(position);
 	m_ProjectileSprite.setRotation(rotation);
-	m_ProjectileSprite.setScale({0.15, 0.15});
 
 	m_ProjectileSpritePtr = &m_ProjectileSprite;
 }

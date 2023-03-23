@@ -8,6 +8,7 @@
 #include "Utils/Maths/MathUtils.h"
 #include "GameObjects/Obstacle.h"
 #include "GameObjects/Projectile.h"
+#include "Utils/Miscellaneous/CollisionHandler.h"
 
 constexpr int Width = 800;
 constexpr int Height = 800;
@@ -41,7 +42,7 @@ int main()
 		ObstacleTransform transform;
 		transform.position = { (float)Rand<int>(0, Width), (float)Rand<int>(0, Height) };
 		float scale = Rand<float>(0.5, 0.2);
-		transform.scale = { scale, scale };
+		transform.scale = { 0.5, 0.5 };
 		transform.rotation = Rand<int>(0, 360);
 		Obstacle* obs = new Obstacle(transform);
 		obs->SetVelocity({ Rand<int>(-ObstacleMaxVelocity.x, ObstacleMaxVelocity.x), Rand<int>(-ObstacleMaxVelocity.y, ObstacleMaxVelocity.y) });
@@ -93,15 +94,12 @@ int main()
 				if (event.key.code == sf::Keyboard::Space && !bSpacePressed)
 				{
 					bSpacePressed = true;
-
 					sf::Vector2f shipTip = { shipSprite.getPosition().x, shipSprite.getPosition().y - shipSprite.getGlobalBounds().height / 2 + 5.0f };
-
 					Projectile* pro = new Projectile(RotateAroundPoint(shipTip, shipSprite.getPosition(), DegreeToRadians(shipSprite.getRotation())), shipSprite.getRotation());
 					pro->SetVelocity({ shipDirection.x * bulletSpeed, shipDirection.y * bulletSpeed });
 					Projectiles.push_back(pro);
 				}
 			}
-
 
 			if(event.type == sf::Event::KeyReleased)
 			{
@@ -178,6 +176,38 @@ int main()
 			SpriteWrap(obs->GetObstacle());
 		}
 
+
+		if(!Obstacles.empty() && !Projectiles.empty())
+		{
+			CollisionHandler collisionHandler;
+
+			for(Obstacle* obs : Obstacles)
+			{
+				if (obs->GetCollision())
+				{
+					for (Projectile* pro : Projectiles)
+					{
+						if (pro->GetCollision())
+						{
+							if (collisionHandler.BoundingBoxDetection(obs->GetObstacle(), pro->GetProjectileSprite()))
+							{
+								std::cout << "Collision Detected " << std::endl;
+								/*pro->SetCollision(false);
+								pro->SetVisibility(false);
+								obs->SetVisibility(false);
+								obs->SetCollision(false);*/
+							}
+							else
+							{
+								//std::cout << "Collision Not Detected" << std::endl;
+							}
+						}
+					}
+				}
+			}
+		}
+
+
 		SpriteWrap(&shipSprite);
 
 		ImGui::SFML::Update(window, deltaTime);
@@ -196,12 +226,18 @@ int main()
 
 		for (Obstacle* obs : Obstacles)
 		{
-			window.draw(*obs->GetObstacle());
+			if (obs->GetVisibility())
+			{
+				window.draw(*obs->GetObstacle());
+			}
 		}
 
 		for(Projectile* pro : Projectiles)
 		{
-			window.draw(*pro->GetProjectileSprite());
+			if (pro->GetVisibility())
+			{
+				window.draw(*pro->GetProjectileSprite());
+			}
 		}
 
 		ImGui::SFML::Render(window);
