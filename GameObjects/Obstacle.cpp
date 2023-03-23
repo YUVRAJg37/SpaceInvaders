@@ -2,16 +2,13 @@
 
 #include <iostream>
 
-Obstacle::Obstacle(ObstacleTransform obstacleTransform)
+Obstacle::Obstacle(ObstacleTransform obstacleTransform, sf::Texture* texture)
 {
-	if (!m_ObstacleTexture.loadFromFile("./Sprites/Obstacle.png"))
-	{
-		std::cout << "Obstacle Texture load fail" << std::endl;
-		return;
-	}
 
-	m_ObstacleTexture.setSmooth(true);
-	m_ObstacleSprite.setTexture(m_ObstacleTexture);
+	if (!texture)
+		return;
+
+	m_ObstacleSprite.setTexture(*texture);
 	m_ObstacleSprite.setOrigin(m_ObstacleSprite.getLocalBounds().width / 2, m_ObstacleSprite.getLocalBounds().height / 2);
 	m_ObstacleSprite.setPosition(obstacleTransform.position);
 	m_ObstacleSprite.setRotation(obstacleTransform.rotation);

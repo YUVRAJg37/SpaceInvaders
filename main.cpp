@@ -14,7 +14,7 @@ constexpr int Width = 800;
 constexpr int Height = 800;
 
 void SpriteWrap(sf::Sprite* sprite);
-void DestroyObstacle(std::vector<Obstacle*>& Obstacles, sf::Sprite* obstacle,sf::Vector2f normal);
+void DestroyObstacle(std::vector<Obstacle*>& Obstacles, sf::Sprite* obstacle,sf::Vector2f normal, sf::Texture* texture);
 
 template <typename t>
 float Rand(t min, t max);
@@ -27,6 +27,21 @@ int main()
 	window.setFramerateLimit(60);
 
 	sf::Texture shipTexture;
+	sf::Texture smallObstacleTexture;
+	sf::Texture obstacleTexture;
+
+	if (!obstacleTexture.loadFromFile("./Sprites/Obstacle.png"))
+	{
+		std::cout << "Small Obstacle Texture Loading Failed";
+		return 0;
+	}
+
+	if (!smallObstacleTexture.loadFromFile("./Sprites/SmallObstacle.png"))
+	{
+		std::cout << "Small Obstacle Texture Loading Failed";
+		return 0;
+	}
+
 	if (!shipTexture.loadFromFile("./Sprites/Ship.png"))
 	{
 		std::cout << "Ship Texture Loading Failed";
@@ -45,12 +60,15 @@ int main()
 		float scale = Rand<float>(0.5, 0.2);
 		transform.scale = { scale, scale };
 		transform.rotation = Rand<int>(0, 360);
-		Obstacle* obs = new Obstacle(transform);
+		Obstacle* obs = new Obstacle(transform, &obstacleTexture);
 		obs->SetVelocity({ Rand<int>(-ObstacleMaxVelocity.x, ObstacleMaxVelocity.x), Rand<int>(-ObstacleMaxVelocity.y, ObstacleMaxVelocity.y) });
 		Obstacles.push_back(obs);
 	}
 
 	shipTexture.setSmooth(true);
+	smallObstacleTexture.setSmooth(true);
+	obstacleTexture.setSmooth(true);
+
 	sf::Sprite shipSprite(shipTexture);
 	shipSprite.setOrigin(shipSprite.getLocalBounds().width/2 , shipSprite.getLocalBounds().height/2);
 	shipSprite.setPosition(Width / 2, Height / 2);
@@ -66,6 +84,7 @@ int main()
 	sf::Vector2f currentPosition;
 	float maxVelocity = 20.0f;
 	float bulletSpeed = 250.0f;
+	bool shipCollide = false;
 
 	sf::Clock deltaClock;
 	while (window.isOpen())
@@ -192,7 +211,6 @@ int main()
 						{
 							if (collisionHandler.BoundingBoxDetection(obs->GetObstacle(), pro->GetProjectileSprite()))
 							{
-								std::cout << "Collision Detected " << std::endl;
 								pro->SetCollision(false);
 								pro->SetVisibility(false);
 								obs->SetVisibility(false);
@@ -203,8 +221,8 @@ int main()
 								sf::Vector2f axis1 = { -edge.y, edge.x };
 								sf::Vector2f axis2 = { edge.y, -edge.x };
 
-								DestroyObstacle(Obstacles, obs->GetObstacle() ,axis1);
-								DestroyObstacle(Obstacles, obs->GetObstacle(),axis2);
+								DestroyObstacle(Obstacles, obs->GetObstacle() ,axis1, &smallObstacleTexture);
+								DestroyObstacle(Obstacles, obs->GetObstacle(),axis2, &smallObstacleTexture);
 								break;
 							}
 						}
@@ -213,6 +231,31 @@ int main()
 			}
 		}
 
+
+		if(!Obstacles.empty())
+		{
+			bool x = false;
+			CollisionHandler collisionHandler;
+			for(Obstacle* obs : Obstacles)
+			{
+				if(obs->GetCollision())
+				{
+					if(!shipCollide && collisionHandler.BoundingBoxDetection(obs->GetObstacle(), &shipSprite))
+					{
+						shipCollide = true;
+					}
+					else
+					{
+						shipCollide = false;
+					}
+					x |= shipCollide;
+					if(x)
+					{
+						std::cout << "Collision Detected" << std::endl;
+					}
+				}
+			}
+		}
 
 		SpriteWrap(&shipSprite);
 
@@ -279,7 +322,7 @@ float Rand(t min, t max)
 	return x;
 }
 
-void DestroyObstacle(std::vector<Obstacle*>& Obstacles, sf::Sprite* obstacle, sf::Vector2f normal)
+void DestroyObstacle(std::vector<Obstacle*>& Obstacles, sf::Sprite* obstacle, sf::Vector2f normal, sf::Texture* texture)
 {
 	if (obstacle->getScale().x <= 0.15)
 		return;
@@ -292,7 +335,8 @@ void DestroyObstacle(std::vector<Obstacle*>& Obstacles, sf::Sprite* obstacle, sf
 
 	transform.rotation = Rand<int>(0, 360);
 
-	Obstacle* obs = new Obstacle(transform);
+	Obstacle* obs = new Obstacle(transform, texture);
 	obs->SetVelocity({normal.x, normal.y});
+	obs->GetObstacle()->setTexture(*texture);
 	Obstacles.push_back(obs);
 }

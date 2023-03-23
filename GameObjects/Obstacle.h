@@ -12,12 +12,11 @@ class Obstacle
 {
 public:
 
-	Obstacle(ObstacleTransform obstacleTransform);
+	Obstacle(ObstacleTransform obstacleTransform, sf::Texture *texture);
 	void Update(float dt);
 
 private:
 
-	sf::Texture m_ObstacleTexture;
 	sf::Sprite m_ObstacleSprite;
 	sf::Sprite* m_ObstacleSpritePtr;
 	sf::Vector2f m_Velocity = {0, 0};
