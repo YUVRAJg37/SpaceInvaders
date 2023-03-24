@@ -19,7 +19,7 @@ private:
 
 public:
 
-	sf::Sprite* GetProjectileSprite() const { return m_ProjectileSpritePtr; }
+	sf::Sprite* GetProjectile() const { return m_ProjectileSpritePtr; }
 	bool IsAlive(int width, int height);
 	void SetVelocity(sf::Vector2f vel) { m_Velocity = vel; }
 	void SetCollision(bool x) { m_CanCollide = x; }

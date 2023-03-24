@@ -1,7 +1,5 @@
 #include "CollisionHandler.h"
 
-#include <iostream>
-
 #include "../Maths/MathUtils.h"
 
 CollisionHandler::CollisionHandler()
