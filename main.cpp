@@ -54,6 +54,7 @@ int main()
 	std::vector<Projectile*> Projectiles;
 	sf::Vector2f ObstacleMaxVelocity{ 20, 20 };
 	bool bSpacePressed{ false };
+	bool bGameOver{ false };
 
 	for (int i = 0; i < 10; i++)
 	{
@@ -86,8 +87,14 @@ int main()
 	}
 
 	sf::Text scoreText;
+	sf::Text gameOverText;
 	scoreText.setFont(textFont);
 	scoreText.setCharacterSize(20);
+	gameOverText.setFont(textFont);
+	gameOverText.setCharacterSize(74);
+	gameOverText.setString("Game Over");
+	gameOverText.setOrigin(gameOverText.getLocalBounds().width / 2, gameOverText.getLocalBounds().height / 2);
+	gameOverText.setPosition(Width / 2, Height / 2);
 
 	float shipSpeed = 100.0f;
 	float shipRotationSpeed = 100.0f;
@@ -108,6 +115,8 @@ int main()
 		sf::Time deltaTime = deltaClock.restart();
 		sf::Vector2f shipPosition = shipSprite.getPosition();
 		float shipRotation = shipSprite.getRotation();
+
+		
 
 		previousPosition = currentPosition;
 		currentPosition = shipSprite.getPosition();
@@ -139,7 +148,7 @@ int main()
 				}
 			}
 
-			if(event.type == sf::Event::KeyReleased)
+			if(event.type == sf::Event::KeyReleased && !bGameOver)
 			{
 				if(event.key.code == sf::Keyboard::Space)
 				{
@@ -262,6 +271,7 @@ int main()
 					if(!shipCollide && collisionHandler.BoundingBoxDetection(obs->GetObstacle(), &shipSprite))
 					{
 						shipCollide = true;
+						bGameOver = true;
 					}
 					else
 					{
@@ -285,7 +295,15 @@ int main()
 
 		window.clear(sf::Color(18,33,43));
 
-		window.draw(shipSprite);
+		if (!bGameOver)
+		{
+			window.draw(shipSprite);
+		}
+		else
+		{
+			window.draw(gameOverText);
+
+		}
 
 		for (Obstacle* obs : Obstacles)
 		{
