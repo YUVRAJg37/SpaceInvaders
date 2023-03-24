@@ -24,11 +24,13 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(Width, Height), "Space Invader");
 	ImGui::SFML::Init(window);
 
-	window.setFramerateLimit(60);
+	window.setFramerateLimit(144);
 
 	sf::Texture shipTexture;
 	sf::Texture smallObstacleTexture;
 	sf::Texture obstacleTexture;
+
+	int score{0};
 
 	if (!obstacleTexture.loadFromFile("./Sprites/Obstacle.png"))
 	{
@@ -74,6 +76,19 @@ int main()
 	shipSprite.setPosition(Width / 2, Height / 2);
 	shipSprite.scale(0.5, 0.5);
 
+
+	sf::Font textFont;
+
+	if(!textFont.loadFromFile("../../Fonts/OpenSans-Regular.ttf"))
+	{
+		std::cout << "Font Load Failed!" << std::endl;
+		return 0;
+	}
+
+	sf::Text scoreText;
+	scoreText.setFont(textFont);
+	scoreText.setCharacterSize(20);
+
 	float shipSpeed = 100.0f;
 	float shipRotationSpeed = 100.0f;
 	sf::Vector2f shipDirection;
@@ -108,6 +123,9 @@ int main()
 			ImGui::SFML::ProcessEvent(event);
 			if (event.type == sf::Event::Closed)
 				window.close();
+
+			std::string scoreString = "Score : " + std::to_string(score);
+			scoreText.setString(scoreString);
 
 			if(event.type == sf::Event::KeyPressed)
 			{
@@ -211,6 +229,8 @@ int main()
 						{
 							if (collisionHandler.BoundingBoxDetection(obs->GetObstacle(), pro->GetProjectileSprite()))
 							{
+								score++;
+
 								pro->SetCollision(false);
 								pro->SetVisibility(false);
 								obs->SetVisibility(false);
@@ -234,7 +254,6 @@ int main()
 
 		if(!Obstacles.empty())
 		{
-			bool x = false;
 			CollisionHandler collisionHandler;
 			for(Obstacle* obs : Obstacles)
 			{
@@ -247,11 +266,6 @@ int main()
 					else
 					{
 						shipCollide = false;
-					}
-					x |= shipCollide;
-					if(x)
-					{
-						std::cout << "Collision Detected" << std::endl;
 					}
 				}
 			}
@@ -288,6 +302,8 @@ int main()
 				window.draw(*pro->GetProjectileSprite());
 			}
 		}
+
+		window.draw(scoreText);
 
 		ImGui::SFML::Render(window);
 		window.display();
